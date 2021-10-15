@@ -13,7 +13,7 @@ namespace ConsoleApp
         {
             Console.CursorVisible = false;
             var task1 = Task.Run(() => {FallingString(0); });
-            var task2 = Task.Run(() => {FallingString(5); });
+            var task2 = Task.Run(() => { FallingString(5); Task.Delay(500);  });
             var task3 = Task.Run(() => { FallingString(20); });
             var task4 = Task.Run(() => { FallingString(32); });
             var task5 = Task.Run(() => { FallingString(37); });
@@ -61,32 +61,43 @@ namespace ConsoleApp
         }
         public static void FallingString (int leftShift)
         {
-
-                while (true)
+                Thread.Sleep(new Random().Next(0, 2000));
+            while (true)
                 {
-                    int lineLength = new Random().Next(8, 15);
+                
+                    int lineLength = new Random().Next(10, 15);
+                    int j = 0;
                     lock (locker)
                     {
                         Console.CursorTop = 0;
                     }
-                    for (int j = 0; j < 30; j++)
+                for (; j < 40; j++)
+                {
+                    if (j < (25))
                     {
-                        
                         lock (locker)
                         {
+                            Console.CursorLeft = leftShift;
                             Console.CursorTop = j;
                         }
                         lock (locker)
                         {
-                            RandomString (lineLength, leftShift);
+                            RandomString(lineLength, leftShift);
                         }
-                        Thread.Sleep(50);
-                        
+                        Thread.Sleep(20);
                     }
-                  lock (locker)
-                  {
-                    Console.Clear();
-                  }
+                    else
+                    {
+                        lock (locker)
+                        {
+                            Console.CursorLeft = leftShift;
+                            Console.CursorTop = j;
+                        }
+                            Console.Write(" ");
+                            Thread.Sleep(50);
+                    }
+                }
+                
                 }
         }
 
