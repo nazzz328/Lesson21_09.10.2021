@@ -1,105 +1,104 @@
 ﻿using System;
-using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
-using System.Collections.Generic;
 
-namespace ConsoleApp
+namespace Task_2
 {
     class Program
     {
-        static object locker = new object();
-        static void Main(string[] args)
+        static void Main()
         {
-            Console.CursorVisible = false;
-            var task1 = Task.Run(() => {FallingString(0); });
-            var task2 = Task.Run(() => { FallingString(5); Task.Delay(500);  });
-            var task3 = Task.Run(() => { FallingString(20); });
-            var task4 = Task.Run(() => { FallingString(32); });
-            var task5 = Task.Run(() => { FallingString(37); });
-            var task6 = Task.Run(() => { FallingString(50); });
-            var task7 = Task.Run(() => { FallingString(66); });
-            var task8 = Task.Run(() => { FallingString(68); });
-            var task9 = Task.Run(() => { FallingString(75); });
-            var task10 = Task.Run(() => { FallingString(80); });
-            Console.ReadLine();
-        }
+            Console.SetWindowSize(80, 42);
 
-       public static void RandomString (int lineLength, int leftShift)
-        {
-            lock (locker)
+            Matrix instance;
+
+            for (int i = 0; i < 26; i++)
             {
-                var random = new Random();
-                string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-                char[] arrayOfChars = Enumerable.Repeat(chars, lineLength).Select(s => s[random.Next(s.Length)]).ToArray();
-                arrayOfChars[0] = ' ';
-                for (int i = 0; i < arrayOfChars.Length; i++)
+                instance = new Matrix(i * 3, true);
+                new Thread(instance.Move).Start();
+            }
+        }
+    }
+}
+class Matrix
+{
+    static object locker = new object();
+
+    Random rand;
+
+    const string litters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+    public int Colunm { get; set; }
+
+    public bool NeedSecond { get; set; }
+
+    public Matrix(int col, bool needSecond)
+    {
+        Colunm = col;
+        rand = new Random((int)DateTime.Now.Ticks);
+        NeedSecond = needSecond;
+    }
+
+    private char GetChar()
+    {
+        return litters.ToCharArray()[rand.Next(0, 35)];
+    }
+
+    public void Move()
+    {
+        int lenght;
+        int count;
+
+        while (true)
+        {
+            count = rand.Next(3, 12);
+            lenght = 0;
+            Thread.Sleep(rand.Next(20, 5000));
+            for (int i = 0; i < 40; i++)
+            {
+                lock (locker)
                 {
-                    if (i == arrayOfChars.Length - 1)
+
+                    Console.ForegroundColor = ConsoleColor.Black;
+                    Console.CursorTop = i - lenght;
+                    for (int j = i - lenght - 1; j < i; j++)
                     {
-                        Console.ForegroundColor = ConsoleColor.White;
-                        Console.CursorLeft = leftShift;
-                        Console.WriteLine(arrayOfChars[i]);
-                        Console.ResetColor();
+                        Console.CursorLeft = Colunm;
+                        Console.WriteLine("в–€");
                     }
-                    else if (i == arrayOfChars.Length - 2)
+
+                    if (lenght < count)
+                        lenght++;
+                    else
+                        if (lenght == count)
+                        count = 0;
+
+                    if (39 - i < lenght)
+                        lenght--;
+                    Console.CursorTop = i - lenght + 1;
+                    Console.ForegroundColor = ConsoleColor.DarkGreen;
+                    for (int j = 0; j < lenght - 2; j++)
+                    {
+                        Console.CursorLeft = Colunm;
+                        Console.WriteLine(GetChar());
+                    }
+                    if (lenght >= 2)
                     {
                         Console.ForegroundColor = ConsoleColor.Green;
-                        Console.CursorLeft = leftShift;
-                        Console.WriteLine(arrayOfChars[i]);
-                        Console.ResetColor();
+                        Console.CursorLeft = Colunm;
+                        Console.WriteLine(GetChar());
                     }
-                    else
+                    if (lenght >= 1)
                     {
-                        Console.ForegroundColor = ConsoleColor.DarkGreen;
-                        Console.CursorLeft = leftShift;
-                        Console.WriteLine(arrayOfChars[i]);
-                        Console.ResetColor();
+                        Console.ForegroundColor = ConsoleColor.White;
+                        Console.CursorLeft = Colunm;
+                        Console.WriteLine(GetChar());
                     }
+
+                    Thread.Sleep(10);
                 }
             }
         }
-        public static void FallingString (int leftShift)
-        {
-                Thread.Sleep(new Random().Next(0, 2000));
-            while (true)
-                {
-                
-                    int lineLength = new Random().Next(10, 15);
-                    int j = 0;
-                    lock (locker)
-                    {
-                        Console.CursorTop = 0;
-                    }
-                for (; j < 40; j++)
-                {
-                    if (j < (25))
-                    {
-                        lock (locker)
-                        {
-                            Console.CursorLeft = leftShift;
-                            Console.CursorTop = j;
-                        }
-                        lock (locker)
-                        {
-                            RandomString(lineLength, leftShift);
-                        }
-                        Thread.Sleep(20);
-                    }
-                    else
-                    {
-                        lock (locker)
-                        {
-                            Console.CursorLeft = leftShift;
-                            Console.CursorTop = j;
-                        }
-                            Console.Write(" ");
-                            Thread.Sleep(50);
-                    }
-                }
-                
-                }
-        }
+    }
 
-        }
+
 }
